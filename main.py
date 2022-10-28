@@ -1,4 +1,4 @@
-import cv1
+import cv2
 import mediapipe as mp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,8 +16,8 @@ def main():
         frame = cv2.flip(frame, 1)
         frame_height, frame_width, _ = frame.shape
 
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
+        #rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        rgb_frame=frame
         output = hand_detector.process(rgb_frame)
         hands = output.multi_hand_landmarks
 
