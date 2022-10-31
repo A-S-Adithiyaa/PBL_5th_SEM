@@ -3,6 +3,7 @@ import mediapipe as mp
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def main():
     input_img = np.full((480, 640), 255, dtype=np.uint8)
 
@@ -14,6 +15,8 @@ def main():
 
     prev=0
     points=[]
+    middle_y=index_y=0
+
     while True:
         _, frame = cap.read()
         frame = cv2.flip(frame, 1)
@@ -26,12 +29,14 @@ def main():
 
         if hands:
             cur=len(hands)
-            if (cur == 2 and prev == 2):
-                if (np.count_nonzero(input_img) < 299800):
+            # if (cur == 2 and prev == 2):
+            if (middle_y<index_y):
+                if (np.count_nonzero(input_img) < 301000):
+                    print(np.count_nonzero(input_img))
                     print("Passing to the model")
                     output = cv2.resize(input_img, (28, 28))
-                    plt.imshow(output)
-                    plt.show()
+                    # plt.imshow(output)
+                    # plt.show()
 
                 input_img = np.full((480, 640), 255, dtype=np.uint8)
 
@@ -45,19 +50,21 @@ def main():
 
                     if id == 8:
                         cv2.circle(img=rgb_frame, center=(x, y), radius=10, color=(0, 255, 255))
-                        cv2.circle(input_img, (x,y), radius=20, color=(0, 0, 0), thickness=-1)
+                        # cv2.circle(input_img, (x,y), radius=20, color=(0, 0, 0), thickness=-1)
+
+                        index_y=y
 
                         points.append([x, y])
                         if (len(points) == 2):
-                            # cv2.line(input_img, points[0], points[1], color=(0, 0, 0), thickness=30)
+                            cv2.line(input_img, points[0], points[1], color=(0, 0, 0), thickness=25)
                             points.pop(0)
                             # points=[]
-                        print((x, y), end="")
+                        # print((x, y), end="")
                     if id==12:
+                        middle_y=y
+
                         cv2.circle(img=rgb_frame, center=(x, y), radius=10, color=(0, 255, 255))
-                        print((x, y))
-
-
+                        # print((x, y))
             prev=cur
 
         cv2.imshow("img", input_img)
