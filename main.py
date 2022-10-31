@@ -5,7 +5,7 @@ import numpy as np
 
 
 def main():
-    input_img = np.full((480, 640), 255, dtype=np.uint8)
+    input_img = np.full((480, 640), 0, dtype=np.uint8)
 
     cap=cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_POS_MSEC,60*1000)
@@ -31,14 +31,14 @@ def main():
             cur=len(hands)
             # if (cur == 2 and prev == 2):
             if (middle_y<index_y):
-                if (np.count_nonzero(input_img) < 301000):
-                    print(np.count_nonzero(input_img))
+                if (np.count_nonzero(input_img) > 3400):
+                    # print(np.count_nonzero(input_img))
                     print("Passing to the model")
                     output = cv2.resize(input_img, (28, 28))
-                    # plt.imshow(output)
-                    # plt.show()
+                    plt.imshow(output)
+                    plt.show()
 
-                input_img = np.full((480, 640), 255, dtype=np.uint8)
+                input_img = np.full((480, 640), 0, dtype=np.uint8)
 
             for hand in hands:
                 drawing_utils.draw_landmarks(rgb_frame, hand) 
@@ -56,7 +56,7 @@ def main():
 
                         points.append([x, y])
                         if (len(points) == 2):
-                            cv2.line(input_img, points[0], points[1], color=(0, 0, 0), thickness=25)
+                            cv2.line(input_img, points[0], points[1], color=(255, 255, 255), thickness=25)
                             points.pop(0)
                             # points=[]
                         # print((x, y), end="")
