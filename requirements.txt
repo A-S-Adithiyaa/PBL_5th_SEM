@@ -1,0 +1,5 @@
+https://www.geeksforgeeks.org/python-read-csv-using-pandas-read_csv/
+https://www.geeksforgeeks.org/difference-between-loc-and-iloc-in-pandas-dataframe/
+https://youtu.be/iqQgED9vV7k
+https://youtu.be/icZItWxw7AI
+https://youtu.be/zfiSAzpy9NM
