@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp
 import matplotlib.pyplot as plt
-# from tensorflow import keras
+from tensorflow import keras
 import numpy as np
 import pickle
 
@@ -38,20 +38,21 @@ def main():
                     
                     
                     input_img_resized = cv2.resize(input_img, (28, 28))
-                    input_img_transpose = np.transpose(input_img_resized)
-                    plt.imshow(input_img_transpose)
+                    input_img_reshaped=input_img_resized.reshape((1, 28, 28, 1))
+                    # print(input_img_reshaped.shape, type(input_img_reshaped))
+                    value = pickled_model.predict(input_img_reshaped)
+                    print(value.argmax())
+                    plt.imshow(input_img_resized)
                     plt.show()
-                    value = pickled_model.predict(input_img_transpose)
-                    print(value)
                     # filename="C"+str(img_no)+".jpg"
                     # cv2.imwrite(filename, input_img_resized)
                     # img_no+=1
                     # # print(np.count_nonzero(input_img))
                     # print("Passing to the model")
                     # print(input_img, len(input_img), type(input_img))
-                    input_img_resized = cv2.resize(input_img, (28, 28))
-                    input_img_resized=input_img.reshape((28, 28))
-                    input_img=np.transpose(input_img)
+                    # input_img_resized = cv2.resize(input_img, (28, 28))
+                    # input_img_resized=input_img.reshape((28, 28))
+                    # input_img=np.transpose(input_img)
                     # input_img_resized = cv2.resize(input_img, (28, 28))
                     # input_img_resized_final=input_img_resized.reshape(1, 28, 28, 1)
                     # print(input_img_resized_final.shape)
@@ -85,7 +86,7 @@ def main():
 
                         points.append([x, y])
                         if (len(points) == 2):
-                            cv2.line(input_img, points[0], points[1], color=(255, 255, 255), thickness=25)
+                            cv2.line(input_img, points[0], points[1], color=(255, 255, 255), thickness=30)
                             points.pop(0)
                             # points=[]
                         # print((x, y), end="")
@@ -107,5 +108,11 @@ def main():
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    pickled_model = pickle.load(open('pblModel18th.pkl', 'rb'))
+    # pickled_model = pickle.load(open('planB/pblModel.pkl', 'rb'))
+    pickled_model = keras.models.load_model('planB/my_model.h5')
     main()
+
+# import pickle
+
+# pickled_model = pickle.load(open('planB/pblModel.pkl', 'rb'))
+# pickled_model.summary()
