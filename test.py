@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from tensorflow import keras
 import numpy as np
 import pickle
+import pyttsx3
 
 def main():
     input_img = np.full((480, 640), 0, dtype=np.uint8)
@@ -27,47 +28,31 @@ def main():
         
         output = hand_detector.process(rgb_frame)
         hands = output.multi_hand_landmarks
+        cv2.namedWindow("Resized_Window", cv2.WINDOW_NORMAL)
 
-        # img_no=1
+        cv2.resizeWindow("Resized_Window", 480, 640)
 
         if hands:
             cur=len(hands)
-            # if (cur == 2 and prev == 2):
             if (middle_y<index_y):
                 if (np.count_nonzero(input_img) > 3400):
-                    
-                    
                     input_img_resized = cv2.resize(input_img, (28, 28))
                     input_img_reshaped=input_img_resized.reshape((1, 28, 28, 1))
-                    # print(input_img_reshaped.shape, type(input_img_reshaped))
-                    value = pickled_model.predict(input_img_reshaped)
-                    print(value.argmax())
+                    value1= pickled_model.predict(input_img_reshaped)
+                    value=value1.argmax()
+                    print(value)
+                    value=int(value)
+                    valuechar=chr(value)
+                    if(value>=10 and value<=36):
+                        valuechar=chr(value+55)
+                    points.clear()
+                    engine=pyttsx3.init()
+                    engine.setProperty('rate', 100)
+                    text=valuechar
+                    engine.say(text)
+                    engine.runAndWait()
                     plt.imshow(input_img_resized)
                     plt.show()
-                    # filename="C"+str(img_no)+".jpg"
-                    # cv2.imwrite(filename, input_img_resized)
-                    # img_no+=1
-                    # # print(np.count_nonzero(input_img))
-                    # print("Passing to the model")
-                    # print(input_img, len(input_img), type(input_img))
-                    # input_img_resized = cv2.resize(input_img, (28, 28))
-                    # input_img_resized=input_img.reshape((28, 28))
-                    # input_img=np.transpose(input_img)
-                    # input_img_resized = cv2.resize(input_img, (28, 28))
-                    # input_img_resized_final=input_img_resized.reshape(1, 28, 28, 1)
-                    # print(input_img_resized_final.shape)
-                    # value = pickled_model.predict(input_img_resized_final)
-                    # print(value, type(value))
-                    # # value_list=list(value)
-                    # # print(value_list[0].index(1))
-                    # # output = cv2.resize(input_img, (28, 28))
-                    # # pickled_model = pickle.load(open('pblModel.pkl', 'rb'))
-                    # pickled_model.predict(output)
-                    # plt.imshow(input_img_resized)
-                    # plt.show()
-                    points.clear()
-
-
                 input_img = np.full((480, 640), 0, dtype=np.uint8)
 
             for hand in hands:
@@ -80,21 +65,14 @@ def main():
 
                     if id == 8:
                         cv2.circle(img=rgb_frame, center=(x, y), radius=10, color=(0, 255, 255))
-                        # cv2.circle(input_img, (x,y), radius=20, color=(0, 0, 0), thickness=-1)
-
                         index_y=y
-
                         points.append([x, y])
                         if (len(points) == 2):
                             cv2.line(input_img, points[0], points[1], color=(255, 255, 255), thickness=30)
                             points.pop(0)
-                            # points=[]
-                        # print((x, y), end="")
                     if id==12:
                         middle_y=y
-
                         cv2.circle(img=rgb_frame, center=(x, y), radius=10, color=(0, 255, 255))
-                        # print((x, y))
             prev=cur
 
         cv2.imshow("img", input_img)
@@ -108,11 +86,5 @@ def main():
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    # pickled_model = pickle.load(open('planB/pblModel.pkl', 'rb'))
     pickled_model = keras.models.load_model('planB/my_model.h5')
     main()
-
-# import pickle
-
-# pickled_model = pickle.load(open('planB/pblModel.pkl', 'rb'))
-# pickled_model.summary()
