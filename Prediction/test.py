@@ -5,6 +5,8 @@ from tensorflow import keras
 import numpy as np
 import pickle
 import pyttsx3
+from textblob import Word
+
 
 def main():
     input_img = np.full((480, 640), 0, dtype=np.uint8)
