@@ -5,8 +5,8 @@ from tensorflow import keras
 import numpy as np
 import pickle
 import pyttsx3
-from textblob import Word
-
+from textblob import TextBlob
+from gingerit.gingerit import GingerIt
 
 def main():
     input_img = np.full((480, 640), 0, dtype=np.uint8)
@@ -18,8 +18,10 @@ def main():
     drawing_utils = mp.solutions.drawing_utils
 
     points=[]
-    middle_y=index_y=thumb_y=thumb_x=pinky_x=space_count=0
+    middle_y=index_y=thumb_y=space_count=pop=0
     sentence=""
+
+    parser=GingerIt()
 
     while True:
         _, frame = cap.read()
@@ -33,44 +35,49 @@ def main():
 
         if hands:
             cur=len(hands)
-            if (thumb_y<index_y):
-                    input_img = np.full((480, 640), 0, dtype=np.uint8)
-
-            if (pinky_x-thumb_x<70 and space_count==0):
+            if (thumb_y-index_y<20 and space_count==0):
                 print("Space added")
                 sentence+=" "
                 space_count=1
 
-            if (middle_y<index_y):
+            if (thumb_y<index_y and pop==0):
+                pop=1
+                print('popped')
+                sentence=sentence[:-2]
+                if(len(sentence.strip())==0):
+                    print('Sentence empty')
+                else:
+                    print(sentence)
+
+            elif (middle_y<index_y):
                 if (np.count_nonzero(input_img) > 3400):
                     input_img_resized = cv2.resize(input_img, (28, 28))
                     input_img_reshaped=input_img_resized.reshape((1, 28, 28, 1))
-                    value1= pickled_model.predict(input_img_reshaped)
+                    if pop!=1:
+                        value1= pickled_model.predict(input_img_reshaped)
 
-                    value=value1.argmax()
+                        value=value1.argmax()
 
-                    # print(value)
+                        # print(value)
 
-                    value=int(value)
-                    if(value>=0 and value<=9):
-                        valuechar=str(value )
-                    if(value>=10 and value<=36):
-                        valuechar=chr(value+55)
+                        value=int(value)
+                        if(value>=0 and value<=9):
+                            valuechar=str(value )
+                        if(value>=10 and value<=36):
+                            valuechar=chr(value+55)
 
-                    points.clear()
+                        points.clear()
 
-                    engine=pyttsx3.init()
-                    engine.setProperty('rate', 100)
-                    text=valuechar
-                    engine.say(text)
-                    engine.runAndWait()
+                        text=valuechar
+                        
 
-                    sentence+=text
-                    print("Sentence :", sentence)
+                        sentence+=text
+                        print("Sentence :", sentence)
 
-                    plt.imshow(input_img_resized)
-                    plt.show()
+                    # plt.imshow(input_img_resized)
+                    # plt.show()
                     space_count=0
+                    pop=0
 
                 input_img = np.full((480, 640), 0, dtype=np.uint8)
 
@@ -87,7 +94,7 @@ def main():
                         index_y=y
                         points.append([x, y])
                         if (len(points) == 2):
-                            cv2.line(input_img, points[0], points[1], color=(255, 255, 255), thickness=30)
+                            cv2.line(input_img, points[0], points[1], color=(255, 255, 255), thickness=25)
                             points.pop(0)
 
                     if id==12:
@@ -95,11 +102,8 @@ def main():
                         cv2.circle(img=rgb_frame, center=(x, y), radius=10, color=(0, 255, 255))
 
                     if id==4:
-                        thumb_x=x
                         thumb_y=y
 
-                    if id==20:
-                        pinky_x=x
             prev=cur
 
         cv2.imshow("img", input_img)
@@ -110,6 +114,15 @@ def main():
 
     cap.release()
     cv2.destroyAllWindows()
+
+    engine=pyttsx3.init()
+    engine.setProperty('rate', 100)
+    # sentenceTB=TextBlob(sentence)
+    # sentence_corrected=sentenceTB.correct()
+    sentence_corrected=parser.parse(sentence.title())
+    print(sentence_corrected['result'])
+    engine.say(sentence_corrected['result'])
+    engine.runAndWait()
 
 if __name__ == '__main__':
     pickled_model = keras.models.load_model('my_model.h5')
